@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": ["Skill(dooray-doc-navigator)"],
+    "deny": [],
+    "ask": []
+  }
+}
