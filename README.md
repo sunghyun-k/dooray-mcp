@@ -24,7 +24,7 @@ brew install uv
 
 개인설정 > API > 개인 인증 토큰 메뉴에서 토큰을 생성합니다.
 
-- 토큰은 발급 받은 계정과 동일한 권한을 갖습니다
+- 토큰은 발급받은 계정과 동일한 권한을 갖습니다
 - API로 작업한 내용은 해당 사용자가 로그인하여 Dooray를 직접 사용하는 것과 차이가 없습니다
 
 ### 2단계: 환경 변수 설정
@@ -40,7 +40,7 @@ brew install uv
 {
   "env": {
     "DOORAY_API_TOKEN": "your-api-token-here",
-    "DOORAY_API_BASE_URL": "https://api.dooray.com"  // 선택사항 (기본값: https://api.dooray.com)
+    "DOORAY_API_BASE_URL": "https://api.dooray.com" // 선택사항 (기본값: https://api.dooray.com)
   }
 }
 ```
@@ -54,7 +54,7 @@ brew install uv
 {
   "env": {
     "DOORAY_API_TOKEN": "your-api-token-here",
-    "DOORAY_API_BASE_URL": "https://api.dooray.com"  // 선택사항 (기본값: https://api.dooray.com)
+    "DOORAY_API_BASE_URL": "https://api.dooray.com" // 선택사항 (기본값: https://api.dooray.com)
   }
 }
 ```
