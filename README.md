@@ -35,7 +35,7 @@ brew install uv
 
 모든 프로젝트에서 사용할 수 있도록 사용자 홈 디렉토리에 설정:
 
-```json
+```jsonc
 // ~/.claude/settings.json
 {
   "env": {
@@ -49,7 +49,7 @@ brew install uv
 
 특정 프로젝트에서만 사용하도록 프로젝트 디렉토리에 설정:
 
-```json
+```jsonc
 // <프로젝트 디렉토리>/.claude/settings.local.json
 {
   "env": {
