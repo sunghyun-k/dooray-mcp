@@ -642,14 +642,14 @@ def get_available_workflows(
         # 워크플로우(상태) 목록 조회
         result = client.get_workflows(project_id=resolved_project_id)
 
-        # 응답에서 상태 목록 추출
-        statuses = result.get('result', [])
-        total_count = result.get('totalCount', len(statuses))
+        # 응답에서 워크플로우 목록 추출
+        workflows = result.get('result', [])
+        total_count = result.get('totalCount', len(workflows))
 
         return {
             "projectId": resolved_project_id,
             "totalCount": total_count,
-            "statuses": statuses,
+            "workflows": workflows,
         }
 
     except Exception as e:

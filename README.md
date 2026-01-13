@@ -342,7 +342,7 @@ list_project_tasks(
 1. 먼저 프로젝트의 사용 가능한 상태 목록 조회:
 
    ```python
-   statuses = get_available_workflows(project_code="개발팀-업무")
+   workflows = get_available_workflows(project_code="개발팀-업무")
    # 결과에서 원하는 상태의 ID 확인
    ```
 
