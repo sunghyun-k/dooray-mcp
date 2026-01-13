@@ -249,6 +249,7 @@ class DoorayClient:
         cc_member_ids: Optional[list] = None,
         workflow_classes: Optional[list] = None,
         subjects: Optional[str] = None,
+        order: Optional[str] = None,
         page: int = 0,
         size: int = 20,
     ) -> Dict[str, Any]:
@@ -263,6 +264,7 @@ class DoorayClient:
             cc_member_ids: 참조자 ID 목록 (organizationMemberId)
             workflow_classes: 상태 클래스 목록 (상태의 대분류)
             subjects: 제목 필터 (부분 일치)
+            order: 정렬 기준 (createdAt, -createdAt, postUpdatedAt, -postUpdatedAt 등)
             page: 페이지 번호
             size: 페이지 크기
 
@@ -273,6 +275,8 @@ class DoorayClient:
             "page": page,
             "size": size,
         }
+        if order is not None:
+            params["order"] = order
         if post_number is not None:
             params["postNumber"] = post_number
         if parent_post_id is not None:

@@ -704,7 +704,7 @@ def list_project_tasks(
         # 크기 제한 (최대 100)
         actual_size = min(size, 100)
 
-        # 업무 목록 조회
+        # 업무 목록 조회 (최신순 정렬)
         result = client.list_posts(
             project_id=resolved_project_id,
             from_member_ids=from_member_ids,
@@ -712,6 +712,7 @@ def list_project_tasks(
             cc_member_ids=cc_member_ids,
             workflow_classes=workflow_classes,
             subjects=subject,
+            order="-createdAt",
             page=0,
             size=actual_size,
         )
