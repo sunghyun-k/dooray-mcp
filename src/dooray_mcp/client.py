@@ -243,6 +243,7 @@ class DoorayClient:
         self,
         project_id: str,
         post_number: Optional[int] = None,
+        parent_post_id: Optional[str] = None,
         page: int = 0,
         size: int = 20,
     ) -> Dict[str, Any]:
@@ -251,6 +252,7 @@ class DoorayClient:
         Args:
             project_id: 프로젝트 ID
             post_number: 특정 업무 번호로 필터링
+            parent_post_id: 상위 업무 ID (하위 업무 목록 조회 시)
             page: 페이지 번호
             size: 페이지 크기
 
@@ -263,6 +265,8 @@ class DoorayClient:
         }
         if post_number is not None:
             params["postNumber"] = post_number
+        if parent_post_id is not None:
+            params["parentPostId"] = parent_post_id
 
         return self.get(f"/project/v1/projects/{project_id}/posts", params=params)
 

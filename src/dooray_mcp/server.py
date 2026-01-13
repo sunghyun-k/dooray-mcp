@@ -157,6 +157,15 @@ def get_task(
         # 응답에서 업무 정보 추출
         task_data = result.get('result', {})
 
+        # 하위 업무 목록 조회
+        sub_tasks_result = client.list_posts(
+            project_id=project_id,
+            parent_post_id=post_id,
+            page=0,
+            size=100,
+        )
+        sub_tasks = sub_tasks_result.get('result', [])
+
         # 사용자 친화적인 형식으로 반환
         return {
             "id": task_data.get('id'),
@@ -175,6 +184,7 @@ def get_task(
             "milestone": task_data.get('milestone', {}),
             "tags": task_data.get('tags', []),
             "parent": task_data.get('parent', {}),
+            "subTasks": sub_tasks,
         }
 
     except Exception as e:
