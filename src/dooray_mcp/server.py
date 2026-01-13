@@ -198,7 +198,6 @@ def list_task_comments(
     task_number: Optional[int] = None,
     url: Optional[str] = None,
     page: int = 0,
-    size: int = 20,
 ) -> Dict[str, Any]:
     """업무의 댓글 목록 조회.
 
@@ -213,7 +212,6 @@ def list_task_comments(
         task_number: 업무 번호 (예: 306)
         url: Dooray 웹 URL (예: 'https://company.dooray.com/task/...')
         page: 페이지 번호 (기본: 0)
-        size: 페이지 크기 (기본: 20, 최대: 100)
 
     Returns:
         댓글 목록 (작성자, 내용, 작성일시 등)
@@ -230,18 +228,25 @@ def list_task_comments(
             url=url,
         )
 
+        # 페이지당 20개 고정
+        page_size = 20
+
         client = get_client()
         result = client.list_logs(
             project_id=project_id,
             post_id=post_id,
             page=page,
-            size=size,
+            size=page_size,
             order="createdAt",  # 오래된 순
         )
 
         # 응답에서 댓글 목록 추출
         logs = result.get('result', [])
         total_count = result.get('totalCount', 0)
+
+        # 다음 페이지 존재 여부 계산
+        fetched_so_far = (page + 1) * page_size
+        has_more = total_count > fetched_so_far
 
         # 사용자 친화적인 형식으로 변환
         comments = []
@@ -259,7 +264,8 @@ def list_task_comments(
         return {
             "totalCount": total_count,
             "page": page,
-            "size": size,
+            "returnedCount": len(comments),
+            "hasMore": has_more,
             "comments": comments,
         }
 
