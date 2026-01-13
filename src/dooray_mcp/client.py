@@ -244,6 +244,11 @@ class DoorayClient:
         project_id: str,
         post_number: Optional[int] = None,
         parent_post_id: Optional[str] = None,
+        from_member_ids: Optional[list] = None,
+        to_member_ids: Optional[list] = None,
+        cc_member_ids: Optional[list] = None,
+        workflow_classes: Optional[list] = None,
+        subjects: Optional[str] = None,
         page: int = 0,
         size: int = 20,
     ) -> Dict[str, Any]:
@@ -253,13 +258,18 @@ class DoorayClient:
             project_id: 프로젝트 ID
             post_number: 특정 업무 번호로 필터링
             parent_post_id: 상위 업무 ID (하위 업무 목록 조회 시)
+            from_member_ids: 작성자 ID 목록 (organizationMemberId)
+            to_member_ids: 담당자 ID 목록 (organizationMemberId)
+            cc_member_ids: 참조자 ID 목록 (organizationMemberId)
+            workflow_classes: 상태 클래스 목록 (상태의 대분류)
+            subjects: 제목 필터 (부분 일치)
             page: 페이지 번호
             size: 페이지 크기
 
         Returns:
             업무 목록
         """
-        params = {
+        params: Dict[str, Any] = {
             "page": page,
             "size": size,
         }
@@ -267,6 +277,16 @@ class DoorayClient:
             params["postNumber"] = post_number
         if parent_post_id is not None:
             params["parentPostId"] = parent_post_id
+        if from_member_ids is not None:
+            params["fromMemberIds"] = ",".join(from_member_ids)
+        if to_member_ids is not None:
+            params["toMemberIds"] = ",".join(to_member_ids)
+        if cc_member_ids is not None:
+            params["ccMemberIds"] = ",".join(cc_member_ids)
+        if workflow_classes is not None:
+            params["postWorkflowClasses"] = ",".join(workflow_classes)
+        if subjects is not None:
+            params["subjects"] = subjects
 
         return self.get(f"/project/v1/projects/{project_id}/posts", params=params)
 

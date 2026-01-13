@@ -606,7 +606,7 @@ def get_project_members(
 
 
 @mcp.tool()
-def get_available_statuses(
+def get_available_workflows(
     project_id: Optional[str] = None,
     project_code: Optional[str] = None,
 ) -> Dict[str, Any]:
@@ -657,8 +657,84 @@ def get_available_statuses(
 
 
 @mcp.tool()
-def set_task_status(
-    status_id: str,
+def list_project_tasks(
+    project_id: Optional[str] = None,
+    project_code: Optional[str] = None,
+    from_member_ids: Optional[list] = None,
+    to_member_ids: Optional[list] = None,
+    cc_member_ids: Optional[list] = None,
+    workflow_classes: Optional[list] = None,
+    subject: Optional[str] = None,
+    size: int = 100,
+) -> Dict[str, Any]:
+    """프로젝트의 업무 목록 조회.
+
+    프로젝트 ID 또는 프로젝트 코드로 프로젝트를 지정할 수 있습니다.
+
+    Args:
+        project_id: 프로젝트 ID (예: '1234567890123456789')
+        project_code: 프로젝트 코드 (예: '개발팀-업무')
+        from_member_ids: 작성자 ID 목록 (organizationMemberId)
+        to_member_ids: 담당자 ID 목록 (organizationMemberId)
+        cc_member_ids: 참조자 ID 목록 (organizationMemberId)
+        workflow_classes: 상태 클래스 목록 (상태의 대분류, get_available_workflows로 조회 가능)
+        subject: 제목 필터 (부분 일치)
+        size: 조회할 업무 수 (기본: 100, 최대: 100)
+
+    Returns:
+        업무 목록 (ID, 제목, 상태, 담당자 등)
+
+    Raises:
+        ValueError: 잘못된 입력
+        DoorayAPIError: API 오류
+    """
+    try:
+        client = get_client()
+
+        # 프로젝트 ID 결정
+        if project_code:
+            resolved_project_id = find_project_by_code(client, project_code)
+            if not resolved_project_id:
+                raise ValueError(f"프로젝트를 찾을 수 없습니다: {project_code}")
+        elif project_id:
+            resolved_project_id = project_id
+        else:
+            raise ValueError("project_id 또는 project_code 중 하나를 제공해야 합니다.")
+
+        # 크기 제한 (최대 100)
+        actual_size = min(size, 100)
+
+        # 업무 목록 조회
+        result = client.list_posts(
+            project_id=resolved_project_id,
+            from_member_ids=from_member_ids,
+            to_member_ids=to_member_ids,
+            cc_member_ids=cc_member_ids,
+            workflow_classes=workflow_classes,
+            subjects=subject,
+            page=0,
+            size=actual_size,
+        )
+
+        # 응답에서 업무 목록 추출
+        tasks = result.get('result', [])
+        total_count = result.get('totalCount', 0)
+
+        return {
+            "projectId": resolved_project_id,
+            "totalCount": total_count,
+            "returnedCount": len(tasks),
+            "hasMore": total_count > len(tasks),
+            "tasks": tasks,
+        }
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@mcp.tool()
+def set_task_workflow(
+    workflow_id: str,
     task_id: Optional[str] = None,
     project_code: Optional[str] = None,
     task_number: Optional[int] = None,
@@ -672,7 +748,7 @@ def set_task_status(
     3. Dooray 웹 URL (url)
 
     Args:
-        status_id: 변경할 상태 ID (필수)
+        workflow_id: 변경할 워크플로우 ID (필수)
         task_id: 업무 ID (예: '9876543210987654321')
         project_code: 프로젝트 코드 (예: '개발팀-업무')
         task_number: 업무 번호 (예: 306)
@@ -697,7 +773,7 @@ def set_task_status(
         result = client.set_post_workflow(
             project_id=project_id,
             post_id=post_id,
-            workflow_id=status_id,
+            workflow_id=workflow_id,
         )
 
         # 성공 여부 확인

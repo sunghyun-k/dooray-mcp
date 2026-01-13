@@ -2,7 +2,7 @@
 
 Dooray 업무 관리를 위한 Model Context Protocol (MCP) 서버입니다.
 
-이 MCP 서버는 업무 생성/조회/수정, 댓글 관리, 프로젝트 멤버/상태/태그 조회 등 총 9가지 도구를 제공합니다.
+이 MCP 서버는 업무 생성/조회/수정/목록, 댓글 관리, 프로젝트 멤버/상태/태그 조회 등 총 10가지 도구를 제공합니다.
 
 ## 필수 요구사항
 
@@ -78,7 +78,7 @@ claude mcp add dooray -- uvx --from git+https://github.com/sunghyun-k/dooray-mcp
 
 ## 기능
 
-이 MCP 서버는 다음 9가지 도구를 제공합니다:
+이 MCP 서버는 다음 10가지 도구를 제공합니다:
 
 ### 1. `create_task` - 업무 생성
 
@@ -250,7 +250,7 @@ create_task(
 - 개인 담당자: `{"type": "member", "member": {"organizationMemberId": "123"}}`
 - 그룹 담당자: `{"type": "group", "group": {"projectMemberGroupId": "456"}}`
 
-### 7. `get_available_statuses` - 프로젝트 상태 목록 조회
+### 7. `get_available_workflows` - 프로젝트 상태 목록 조회
 
 프로젝트에서 사용 가능한 모든 상태를 조회합니다.
 
@@ -261,7 +261,7 @@ create_task(
 
 **반환 정보:**
 
-- 상태 ID (status_id로 업무 상태 변경 시 사용)
+- 상태 ID (workflow_id로 업무 상태 변경 시 사용)
 - 상태 이름 (여러 언어 지원)
 - 상태 클래스 (backlog, registered, working, closed)
 - 정렬 순서
@@ -273,13 +273,58 @@ create_task(
 - `working`: 진행 중
 - `closed`: 완료
 
-### 8. `set_task_status` - 업무 상태 변경
+### 8. `list_project_tasks` - 프로젝트 업무 목록 조회
+
+프로젝트의 업무 목록을 조회합니다.
+
+**지원하는 입력 방식:**
+
+- 프로젝트 ID: `project_id="4062369282783966548"`
+- 프로젝트 코드: `project_code="개발팀-업무"`
+
+**필터 파라미터 (모두 선택사항):**
+
+- `from_member_ids`: 작성자 ID 목록 (organizationMemberId)
+- `to_member_ids`: 담당자 ID 목록 (organizationMemberId)
+- `cc_member_ids`: 참조자 ID 목록 (organizationMemberId)
+- `workflow_classes`: 상태 클래스 목록 (상태의 대분류, `get_available_workflows`로 조회 가능)
+- `subject`: 제목 필터 (부분 일치)
+- `size`: 조회할 업무 수 (기본: 100, 최대: 100)
+
+**반환 정보:**
+
+- 프로젝트 ID
+- 총 업무 수 (totalCount)
+- 반환된 업무 수 (returnedCount)
+- 추가 업무 존재 여부 (hasMore)
+- 업무 목록 (ID, 제목, 상태, 담당자 등)
+
+**사용 예시:**
+
+```python
+# 프로젝트의 모든 업무 조회
+list_project_tasks(project_code="개발팀-업무")
+
+# 특정 상태 클래스의 업무만 조회 (클래스는 get_available_workflows로 확인)
+list_project_tasks(
+    project_code="개발팀-업무",
+    workflow_classes=["working"]
+)
+
+# 특정 담당자의 업무 조회
+list_project_tasks(
+    project_code="개발팀-업무",
+    to_member_ids=["1234567890"]
+)
+```
+
+### 9. `set_task_workflow` - 업무 상태 변경
 
 업무의 상태를 변경합니다.
 
 **필수 파라미터:**
 
-- `status_id`: 변경할 상태 ID (get_available_statuses로 조회 가능)
+- `workflow_id`: 변경할 상태 ID (get_available_workflows로 조회 가능)
 
 **지원하는 입력 방식:**
 
@@ -297,21 +342,21 @@ create_task(
 1. 먼저 프로젝트의 사용 가능한 상태 목록 조회:
 
    ```python
-   statuses = get_available_statuses(project_code="개발팀-업무")
+   statuses = get_available_workflows(project_code="개발팀-업무")
    # 결과에서 원하는 상태의 ID 확인
    ```
 
 2. 해당 상태 ID로 업무 상태 변경:
 
    ```python
-   set_task_status(
-       status_id="3629707640373969653",
+   set_task_workflow(
+       workflow_id="3629707640373969653",
        project_code="개발팀-업무",
        task_number=123
    )
    ```
 
-### 9. `list_project_tags` - 프로젝트 태그 목록 조회
+### 10. `list_project_tags` - 프로젝트 태그 목록 조회
 
 프로젝트에서 사용 가능한 모든 태그를 조회합니다.
 
