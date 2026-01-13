@@ -249,6 +249,7 @@ class DoorayClient:
         cc_member_ids: Optional[list] = None,
         workflow_classes: Optional[list] = None,
         subjects: Optional[str] = None,
+        created_at: Optional[str] = None,
         order: Optional[str] = None,
         page: int = 0,
         size: int = 20,
@@ -264,6 +265,7 @@ class DoorayClient:
             cc_member_ids: 참조자 ID 목록 (organizationMemberId)
             workflow_classes: 상태 클래스 목록 (상태의 대분류)
             subjects: 제목 필터 (부분 일치)
+            created_at: 생성일 필터 (today, thisweek, prev-{N}d, next-{N}d, ISO8601 범위)
             order: 정렬 기준 (createdAt, -createdAt, postUpdatedAt, -postUpdatedAt 등)
             page: 페이지 번호
             size: 페이지 크기
@@ -291,6 +293,8 @@ class DoorayClient:
             params["postWorkflowClasses"] = ",".join(workflow_classes)
         if subjects is not None:
             params["subjects"] = subjects
+        if created_at is not None:
+            params["createdAt"] = created_at
 
         return self.get(f"/project/v1/projects/{project_id}/posts", params=params)
 

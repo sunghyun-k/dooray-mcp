@@ -289,6 +289,7 @@ create_task(
 - `cc_member_ids`: 참조자 ID 목록 (organizationMemberId)
 - `workflow_classes`: 상태 클래스 목록 (상태의 대분류, `get_available_workflows`로 조회 가능)
 - `subject`: 제목 필터 (부분 일치)
+- `created_at`: 생성일 필터 (기본: `prev-30d`). `today`, `thisweek`, `prev-{N}d`, `next-{N}d`, ISO8601 범위 지원
 - `size`: 조회할 업무 수 (기본: 100, 최대: 100)
 
 **반환 정보:**

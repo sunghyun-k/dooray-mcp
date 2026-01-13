@@ -665,6 +665,7 @@ def list_project_tasks(
     cc_member_ids: Optional[list] = None,
     workflow_classes: Optional[list] = None,
     subject: Optional[str] = None,
+    created_at: str = "prev-30d",
     size: int = 100,
 ) -> Dict[str, Any]:
     """프로젝트의 업무 목록 조회.
@@ -679,6 +680,7 @@ def list_project_tasks(
         cc_member_ids: 참조자 ID 목록 (organizationMemberId)
         workflow_classes: 상태 클래스 목록 (상태의 대분류, get_available_workflows로 조회 가능)
         subject: 제목 필터 (부분 일치)
+        created_at: 생성일 필터 (기본: 'prev-30d'). today, thisweek, prev-{N}d, next-{N}d, ISO8601 범위 지원
         size: 조회할 업무 수 (기본: 100, 최대: 100)
 
     Returns:
@@ -712,6 +714,7 @@ def list_project_tasks(
             cc_member_ids=cc_member_ids,
             workflow_classes=workflow_classes,
             subjects=subject,
+            created_at=created_at,
             order="-createdAt",
             page=0,
             size=actual_size,
