@@ -290,14 +290,15 @@ create_task(
 - `workflow_classes`: 상태 클래스 목록 (상태의 대분류, `get_available_workflows`로 조회 가능)
 - `subject`: 제목 필터 (부분 일치)
 - `created_at`: 생성일 필터 (기본: `prev-30d`). `today`, `thisweek`, `prev-{N}d`, `next-{N}d`, ISO8601 범위 지원
-- `size`: 조회할 업무 수 (기본: 100, 최대: 100)
+- `page`: 페이지 번호 (기본: 0, 페이지당 20개)
 
 **반환 정보:**
 
 - 프로젝트 ID
 - 총 업무 수 (totalCount)
+- 현재 페이지 번호 (page)
 - 반환된 업무 수 (returnedCount)
-- 추가 업무 존재 여부 (hasMore)
+- 다음 페이지 존재 여부 (hasMore)
 - 업무 목록 (ID, 제목, 상태, 담당자 등)
 
 **사용 예시:**

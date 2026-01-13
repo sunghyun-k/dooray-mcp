@@ -666,7 +666,7 @@ def list_project_tasks(
     workflow_classes: Optional[list] = None,
     subject: Optional[str] = None,
     created_at: str = "prev-30d",
-    size: int = 100,
+    page: int = 0,
 ) -> Dict[str, Any]:
     """프로젝트의 업무 목록 조회.
 
@@ -681,7 +681,7 @@ def list_project_tasks(
         workflow_classes: 상태 클래스 목록 (상태의 대분류, get_available_workflows로 조회 가능)
         subject: 제목 필터 (부분 일치)
         created_at: 생성일 필터 (기본: 'prev-30d'). today, thisweek, prev-{N}d, next-{N}d, ISO8601 범위 지원
-        size: 조회할 업무 수 (기본: 100, 최대: 100)
+        page: 페이지 번호 (기본: 0)
 
     Returns:
         업무 목록 (ID, 제목, 상태, 담당자 등)
@@ -703,8 +703,8 @@ def list_project_tasks(
         else:
             raise ValueError("project_id 또는 project_code 중 하나를 제공해야 합니다.")
 
-        # 크기 제한 (최대 100)
-        actual_size = min(size, 100)
+        # 페이지당 20개 고정
+        page_size = 20
 
         # 업무 목록 조회 (최신순 정렬)
         result = client.list_posts(
@@ -716,19 +716,24 @@ def list_project_tasks(
             subjects=subject,
             created_at=created_at,
             order="-createdAt",
-            page=0,
-            size=actual_size,
+            page=page,
+            size=page_size,
         )
 
         # 응답에서 업무 목록 추출
         tasks = result.get('result', [])
         total_count = result.get('totalCount', 0)
 
+        # 다음 페이지 존재 여부 계산
+        fetched_so_far = (page + 1) * page_size
+        has_more = total_count > fetched_so_far
+
         return {
             "projectId": resolved_project_id,
             "totalCount": total_count,
+            "page": page,
             "returnedCount": len(tasks),
-            "hasMore": total_count > len(tasks),
+            "hasMore": has_more,
             "tasks": tasks,
         }
 
