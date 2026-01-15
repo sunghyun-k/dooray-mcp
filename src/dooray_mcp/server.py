@@ -117,6 +117,64 @@ def resolve_task_identifiers(
 
 
 @mcp.tool()
+def list_projects(
+    page: int = 0,
+    state: Optional[str] = None,
+    scope: Optional[str] = None,
+) -> Dict[str, Any]:
+    """내가 속한 프로젝트 목록 조회.
+
+    Args:
+        page: 페이지 번호 (기본: 0)
+        state: 프로젝트 상태 필터 ('active', 'archived')
+        scope: 프로젝트 접근 범위 필터 ('private', 'public')
+
+    Returns:
+        프로젝트 목록 (ID, 코드, 설명, 상태 등)
+
+    Raises:
+        DoorayAPIError: API 오류
+    """
+    try:
+        client = get_client()
+
+        # 페이지당 20개 고정
+        page_size = 20
+
+        # API 호출
+        params = {
+            "member": "me",
+            "page": page,
+            "size": page_size,
+        }
+        if state:
+            params["state"] = state
+        if scope:
+            params["scope"] = scope
+
+        result = client.get("/project/v1/projects", params=params)
+
+        # 응답에서 프로젝트 목록 추출
+        projects = result.get('result', [])
+        total_count = result.get('totalCount', 0)
+
+        # 다음 페이지 존재 여부 계산
+        fetched_so_far = (page + 1) * page_size
+        has_more = total_count > fetched_so_far
+
+        return {
+            "totalCount": total_count,
+            "page": page,
+            "returnedCount": len(projects),
+            "hasMore": has_more,
+            "projects": projects,
+        }
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@mcp.tool()
 def get_task(
     task_id: Optional[str] = None,
     project_code: Optional[str] = None,
@@ -818,7 +876,6 @@ def list_project_tags(
     project_id: Optional[str] = None,
     project_code: Optional[str] = None,
     page: int = 0,
-    size: int = 20,
 ) -> Dict[str, Any]:
     """프로젝트의 태그 목록 조회.
 
@@ -829,7 +886,6 @@ def list_project_tags(
         project_id: 프로젝트 ID (예: '1234567890123456789')
         project_code: 프로젝트 코드 (예: '개발팀-업무')
         page: 페이지 번호 (기본: 0)
-        size: 페이지 크기 (기본: 20, 최대: 100)
 
     Returns:
         태그 목록 (ID, 이름, 색상, 태그 그룹 정보 등)
@@ -851,22 +907,30 @@ def list_project_tags(
         else:
             raise ValueError("project_id 또는 project_code 중 하나를 제공해야 합니다.")
 
+        # 페이지당 20개 고정
+        page_size = 20
+
         # 태그 목록 조회
         result = client.list_tags(
             project_id=resolved_project_id,
             page=page,
-            size=size,
+            size=page_size,
         )
 
         # 응답에서 태그 목록 추출
         tags = result.get('result', [])
         total_count = result.get('totalCount', 0)
 
+        # 다음 페이지 존재 여부 계산
+        fetched_so_far = (page + 1) * page_size
+        has_more = total_count > fetched_so_far
+
         return {
             "projectId": resolved_project_id,
             "totalCount": total_count,
             "page": page,
-            "size": size,
+            "returnedCount": len(tags),
+            "hasMore": has_more,
             "tags": tags,
         }
 

@@ -2,7 +2,7 @@
 
 Dooray 업무 관리를 위한 Model Context Protocol (MCP) 서버입니다.
 
-이 MCP 서버는 업무 생성/조회/수정/목록, 댓글 관리, 프로젝트 멤버/상태/태그 조회 등 총 10가지 도구를 제공합니다.
+이 MCP 서버는 업무 생성/조회/수정/목록, 댓글 관리, 프로젝트 목록/멤버/상태/태그 조회 등 총 11가지 도구를 제공합니다.
 
 ## 필수 요구사항
 
@@ -78,7 +78,7 @@ claude mcp add dooray -- uvx --from git+https://github.com/sunghyun-k/dooray-mcp
 
 ## 기능
 
-이 MCP 서버는 다음 10가지 도구를 제공합니다:
+이 MCP 서버는 다음 11가지 도구를 제공합니다:
 
 ### 1. `create_task` - 업무 생성
 
@@ -223,7 +223,38 @@ create_task(
 - 성공 여부
 - 오류 메시지 (실패 시)
 
-### 6. `get_project_members` - 프로젝트 멤버 및 그룹 조회
+### 6. `list_projects` - 프로젝트 목록 조회
+
+내가 속한 프로젝트 목록을 조회합니다.
+
+**필터 파라미터 (모두 선택사항):**
+
+- `state`: 프로젝트 상태 필터 (`active`, `archived`)
+- `scope`: 프로젝트 접근 범위 필터 (`private`, `public`)
+- `page`: 페이지 번호 (기본: 0, 페이지당 20개)
+
+**반환 정보:**
+
+- 총 프로젝트 수 (totalCount)
+- 현재 페이지 번호 (page)
+- 반환된 프로젝트 수 (returnedCount)
+- 다음 페이지 존재 여부 (hasMore)
+- 프로젝트 목록 (ID, 코드, 설명, 상태, 접근 범위 등)
+
+**사용 예시:**
+
+```python
+# 모든 프로젝트 조회
+list_projects()
+
+# 활성 프로젝트만 조회
+list_projects(state="active")
+
+# 다음 페이지 조회
+list_projects(page=1)
+```
+
+### 7. `get_project_members` - 프로젝트 멤버 및 그룹 조회
 
 프로젝트의 멤버와 멤버 그룹을 모두 조회합니다. 각 멤버 그룹에는 소속된 멤버 목록도 포함됩니다.
 
@@ -249,7 +280,7 @@ create_task(
 - 개인 담당자: `{"type": "member", "member": {"organizationMemberId": "123"}}`
 - 그룹 담당자: `{"type": "group", "group": {"projectMemberGroupId": "456"}}`
 
-### 7. `get_available_workflows` - 프로젝트 상태 목록 조회
+### 8. `get_available_workflows` - 프로젝트 상태 목록 조회
 
 프로젝트에서 사용 가능한 모든 상태를 조회합니다.
 
@@ -272,7 +303,7 @@ create_task(
 - `working`: 진행 중
 - `closed`: 완료
 
-### 8. `list_project_tasks` - 프로젝트 업무 목록 조회
+### 9. `list_project_tasks` - 프로젝트 업무 목록 조회
 
 프로젝트의 업무 목록을 조회합니다.
 
@@ -319,7 +350,7 @@ list_project_tasks(
 )
 ```
 
-### 9. `set_task_workflow` - 업무 상태 변경
+### 10. `set_task_workflow` - 업무 상태 변경
 
 업무의 상태를 변경합니다.
 
@@ -357,7 +388,7 @@ list_project_tasks(
    )
    ```
 
-### 10. `list_project_tags` - 프로젝트 태그 목록 조회
+### 11. `list_project_tags` - 프로젝트 태그 목록 조회
 
 프로젝트에서 사용 가능한 모든 태그를 조회합니다.
 
@@ -368,16 +399,15 @@ list_project_tasks(
 
 **추가 파라미터:**
 
-- `page`: 페이지 번호 (기본: 0)
-- `size`: 페이지 크기 (기본: 20, 최대: 100)
+- `page`: 페이지 번호 (기본: 0, 페이지당 20개)
 
 **반환 정보:**
 
-- 태그 ID (tag_ids로 업무 생성/수정 시 사용)
-- 태그 이름
-- 태그 색상
-- 태그 그룹 정보 (ID, 이름, mandatory, selectOne)
-- 총 태그 수
+- 총 태그 수 (totalCount)
+- 현재 페이지 번호 (page)
+- 반환된 태그 수 (returnedCount)
+- 다음 페이지 존재 여부 (hasMore)
+- 태그 목록 (ID, 이름, 색상, 태그 그룹 정보)
 
 **태그 그룹 속성:**
 
