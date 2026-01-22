@@ -395,6 +395,78 @@ def create_task_comment(
 
 
 @mcp.tool()
+def update_task_comment(
+    comment_id: str,
+    content: str,
+    task_id: Optional[str] = None,
+    project_code: Optional[str] = None,
+    task_number: Optional[int] = None,
+    url: Optional[str] = None,
+    mime_type: str = "text/x-markdown",
+) -> Dict[str, Any]:
+    """업무 댓글 수정.
+
+    세 가지 방법으로 업무를 지정할 수 있습니다:
+    1. 업무 ID만 제공 (task_id)
+    2. 프로젝트 코드 + 업무 번호 (project_code, task_number)
+    3. Dooray 웹 URL (url)
+
+    Args:
+        comment_id: 댓글 ID (필수, list_task_comments로 조회 가능)
+        content: 수정할 댓글 내용 (필수)
+        task_id: 업무 ID (예: '9876543210987654321')
+        project_code: 프로젝트 코드 (예: '개발팀-업무')
+        task_number: 업무 번호 (예: 306)
+        url: Dooray 웹 URL (예: 'https://company.dooray.com/task/...')
+        mime_type: 콘텐츠 타입 (기본: 'text/x-markdown', 또는 'text/html')
+
+    Returns:
+        수정 결과
+
+    Raises:
+        ValueError: 잘못된 입력
+        DoorayAPIError: API 오류
+    """
+    try:
+        project_id, post_id = resolve_task_identifiers(
+            task_id=task_id,
+            project_code=project_code,
+            task_number=task_number,
+            url=url,
+        )
+
+        client = get_client()
+        result = client.update_log(
+            project_id=project_id,
+            post_id=post_id,
+            log_id=comment_id,
+            content=content,
+            mime_type=mime_type,
+        )
+
+        # 성공 여부 확인
+        is_successful = result.get('header', {}).get('isSuccessful', False)
+
+        if is_successful:
+            return {
+                "success": True,
+                "message": "댓글이 성공적으로 수정되었습니다.",
+            }
+        else:
+            error_message = result.get('header', {}).get('resultMessage', '알 수 없는 오류')
+            return {
+                "success": False,
+                "error": error_message,
+            }
+
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+        }
+
+
+@mcp.tool()
 def create_task(
     project_id: Optional[str] = None,
     project_code: Optional[str] = None,

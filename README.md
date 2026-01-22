@@ -2,7 +2,7 @@
 
 Dooray 업무 관리를 위한 Model Context Protocol (MCP) 서버입니다.
 
-이 MCP 서버는 업무 생성/조회/수정/목록, 댓글 관리, 프로젝트 목록/멤버/상태/태그 조회 등 총 11가지 도구를 제공합니다.
+이 MCP 서버는 업무 생성/조회/수정/목록, 댓글 관리, 프로젝트 목록/멤버/상태/태그 조회 등 총 12가지 도구를 제공합니다.
 
 ## 필수 요구사항
 
@@ -78,7 +78,7 @@ claude mcp add dooray -- uvx --from git+https://github.com/sunghyun-k/dooray-mcp
 
 ## 기능
 
-이 MCP 서버는 다음 11가지 도구를 제공합니다:
+이 MCP 서버는 다음 12가지 도구를 제공합니다:
 
 ### 1. `create_task` - 업무 생성
 
@@ -195,7 +195,53 @@ create_task(
 - 성공 여부
 - 생성된 댓글 ID
 
-### 5. `update_task` - 업무 수정
+### 5. `update_task_comment` - 댓글 수정
+
+업무의 댓글을 수정합니다.
+
+**필수 파라미터:**
+
+- `comment_id`: 댓글 ID (list_task_comments로 조회 가능)
+- `content`: 수정할 댓글 내용
+
+**지원하는 입력 방식:**
+
+- 업무 ID만 제공: `task_id="9876543210987654321"`
+- 프로젝트 코드 + 업무 번호: `project_code="개발팀-업무"`, `task_number=123`
+- Dooray 웹 URL: `url="https://company.dooray.com/task/..."`
+
+**추가 파라미터:**
+
+- `mime_type`: 콘텐츠 타입 (기본: `text/x-markdown`, 또는 `text/html`)
+
+**반환 정보:**
+
+- 성공 여부
+- 오류 메시지 (실패 시)
+
+**사용 예시:**
+
+1. 먼저 댓글 목록 조회:
+
+   ```python
+   comments = list_task_comments(project_code="개발팀-업무", task_number=123)
+   # 결과에서 수정할 댓글의 ID 확인
+   ```
+
+2. 댓글 수정:
+
+   ```python
+   update_task_comment(
+       comment_id="1234567890123456789",
+       content="수정된 댓글 내용입니다.",
+       project_code="개발팀-업무",
+       task_number=123
+   )
+   ```
+
+**참고:** 이메일로 발송된 메일은 수정이 불가능합니다.
+
+### 6. `update_task` - 업무 수정
 
 업무의 정보를 수정합니다. 수정하고 싶은 필드만 제공하면 됩니다 (부분 업데이트 지원).
 
@@ -223,7 +269,7 @@ create_task(
 - 성공 여부
 - 오류 메시지 (실패 시)
 
-### 6. `list_projects` - 프로젝트 목록 조회
+### 7. `list_projects` - 프로젝트 목록 조회
 
 내가 속한 프로젝트 목록을 조회합니다.
 
@@ -254,7 +300,7 @@ list_projects(state="active")
 list_projects(page=1)
 ```
 
-### 7. `get_project_members` - 프로젝트 멤버 및 그룹 조회
+### 8. `get_project_members` - 프로젝트 멤버 및 그룹 조회
 
 프로젝트의 멤버와 멤버 그룹을 모두 조회합니다. 각 멤버 그룹에는 소속된 멤버 목록도 포함됩니다.
 
@@ -280,7 +326,7 @@ list_projects(page=1)
 - 개인 담당자: `{"type": "member", "member": {"organizationMemberId": "123"}}`
 - 그룹 담당자: `{"type": "group", "group": {"projectMemberGroupId": "456"}}`
 
-### 8. `get_available_workflows` - 프로젝트 상태 목록 조회
+### 9. `get_available_workflows` - 프로젝트 상태 목록 조회
 
 프로젝트에서 사용 가능한 모든 상태를 조회합니다.
 
@@ -303,7 +349,7 @@ list_projects(page=1)
 - `working`: 진행 중
 - `closed`: 완료
 
-### 9. `list_project_tasks` - 프로젝트 업무 목록 조회
+### 10. `list_project_tasks` - 프로젝트 업무 목록 조회
 
 프로젝트의 업무 목록을 조회합니다.
 
@@ -350,7 +396,7 @@ list_project_tasks(
 )
 ```
 
-### 10. `set_task_workflow` - 업무 상태 변경
+### 11. `set_task_workflow` - 업무 상태 변경
 
 업무의 상태를 변경합니다.
 
@@ -388,7 +434,7 @@ list_project_tasks(
    )
    ```
 
-### 11. `list_project_tags` - 프로젝트 태그 목록 조회
+### 12. `list_project_tags` - 프로젝트 태그 목록 조회
 
 프로젝트에서 사용 가능한 모든 태그를 조회합니다.
 

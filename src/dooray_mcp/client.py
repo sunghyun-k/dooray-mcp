@@ -521,6 +521,37 @@ class DoorayClient:
             json=data,
         )
 
+    def update_log(
+        self,
+        project_id: str,
+        post_id: str,
+        log_id: str,
+        content: str,
+        mime_type: str = "text/x-markdown",
+    ) -> Dict[str, Any]:
+        """댓글 수정.
+
+        Args:
+            project_id: 프로젝트 ID
+            post_id: 업무 ID
+            log_id: 댓글 ID
+            content: 댓글 내용
+            mime_type: 콘텐츠 타입 ('text/x-markdown' 또는 'text/html')
+
+        Returns:
+            업데이트 결과
+        """
+        data = {
+            "body": {
+                "content": content,
+                "mimeType": mime_type,
+            }
+        }
+        return self.put(
+            f"/project/v1/projects/{project_id}/posts/{post_id}/logs/{log_id}",
+            json=data,
+        )
+
     # 상태(Workflow) API
 
     def get_workflows(self, project_id: str) -> Dict[str, Any]:
